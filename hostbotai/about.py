@@ -1,0 +1,7 @@
+__name__ = "hostbot_Ai"
+__version__ = "0.0.1"
+__author__ = "Max Klein"
+__author_email__ = "max@notconfusing.com"
+__description__ = "Predict wikipedia editors to go to TeaHouse."
+__url__ = "https://github.com/notconfusing/hostbot-ai"
+__license__ = "MIT"

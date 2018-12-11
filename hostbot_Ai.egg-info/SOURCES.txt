@@ -1,0 +1,10 @@
+README.md
+hostbot_Ai.egg-info/PKG-INFO
+hostbot_Ai.egg-info/SOURCES.txt
+hostbot_Ai.egg-info/dependency_links.txt
+hostbot_Ai.egg-info/top_level.txt
+hostbot_ai/__init__.py
+hostbot_ai/about.py
+hostbot_ai/hostbot_ai.py
+hostbot_ai/orm_models.py
+hostbot_ai/utils.py

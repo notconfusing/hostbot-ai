@@ -1,0 +1,19 @@
+Metadata-Version: 1.1
+Name: hostbot-Ai
+Version: 0.0.1
+Summary: Predict wikipedia editors to go to TeaHouse.
+Home-page: https://github.com/notconfusing/hostbot-ai
+Author: Max Klein
+Author-email: max@notconfusing.com
+License: MIT
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Topic :: Utilities
+Classifier: Topic :: Scientific/Engineering

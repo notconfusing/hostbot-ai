@@ -1,0 +1,5 @@
+create database hostbot_ai;
+
+CREATE USER 'hostbot_ai'@'localhost' IDENTIFIED BY 'E*h06^b2Oub6*tqQ';
+
+GRANT ALL PRIVILEGES ON * . * TO 'hostbot_ai'@'localhost';

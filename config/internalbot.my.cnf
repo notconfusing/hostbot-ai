@@ -1,0 +1,6 @@
+[client]
+user='hostbot_ai'
+password='E*h06^b2Oub6*tqQ'
+port=3307
+catalog='hostbot_ai'
+pymysql=''

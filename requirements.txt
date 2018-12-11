@@ -1,0 +1,6 @@
+alembic==1.0.5
+Mako==1.0.7
+newcomerquality
+pytest==3.2.5
+SQLAlchemy==1.2.14
+pandas
