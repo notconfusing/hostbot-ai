@@ -14,3 +14,5 @@ ipython/\.ipynb_checkpoints/
 ipython/make edit text\.ipynb
 
 alembic/versions/__pycache__/
+
+hostbotai/tests/__pycache__/
