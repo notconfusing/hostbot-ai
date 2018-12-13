@@ -4,3 +4,13 @@
 \.idea/
 
 logs/
+
+hostbotai/__pycache__/
+
+config/default_config\.json
+
+ipython/\.ipynb_checkpoints/
+
+ipython/make edit text\.ipynb
+
+alembic/versions/__pycache__/

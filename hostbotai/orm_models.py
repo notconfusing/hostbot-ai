@@ -19,9 +19,11 @@ class candidates(Base):
 
 class predictions(Base):
     __tablename__ = 'predictions'
-    user_id                 = Column(Integer, primary_key = True)
+    prediction_id           = Column(Integer, primary_key = True)
+    user_id                 = Column(Integer, index=True)
     predicted_at            = Column(DateTime, index=True, default=datetime.datetime.utcnow)
-    user_summary            = Column(JSON)
-    pred_min                = Column(Float)
-    pred_mean               = Column(Float)
-    pred_error              = Column(JSON)
+    user_summary            = Column(JSON, default=None)
+    scores                  = Column(JSON, default=None)
+    pred_min                = Column(Float, default=None)
+    newcomer_predictions    = Column(JSON, default=None)
+    pred_error              = Column(MEDIUMTEXT, default=None)

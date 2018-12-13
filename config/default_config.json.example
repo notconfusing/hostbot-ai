@@ -1,0 +1,11 @@
+{"threshholds":{
+    "Fri": 0.884070,
+    "Sat": 0.842765,
+    "Sun": 0.865676,
+    "Mon": 0.906331,
+    "Tue": 0.907539,
+    "Wed": 0.886038,
+    "Thu": 0.885000},
+  "wm_password":"",
+  "wm_username":"recitation-bot"
+}
