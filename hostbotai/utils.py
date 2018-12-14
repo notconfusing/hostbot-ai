@@ -59,8 +59,8 @@ def get_candidate_users(con, min_dt, test=False):
     new_user_query = f'''select user_id, user_name, user_registration, user_editcount 
                         from user where user_registration > {min_time} 
                         and user_editcount >= 3'''
-    if test:
-        new_user_query += ' limit 10'
+    # if test:
+    #     new_user_query += ' limit 10'
     print(new_user_query)
     new_users = pd.read_sql(new_user_query, con)
     new_users['user_name'] = new_users['user_name'].apply(utf_8_decode)

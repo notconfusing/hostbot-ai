@@ -173,9 +173,9 @@ class HostBot():
         beginning_of_today = today
         invites_sent_today = self.internalsession.query(candidates). \
             filter(candidates.created_at > today). \
-            filter(or_(candidates.invite_sent == 'sent', candidates.invite_sent == 'overflow')).count()
+            filter(candidates.invite_sent.in_(['invited', 'test-invited','overflow'])).count()
 
-        log.info('DRL: invites sent today {invites_sent_today}, today is: {today}')
+        log.info(f'DRL: invites sent today {invites_sent_today}, today is: {today}')
         daily_limit_remaining = self.daily_limit - invites_sent_today
 
         if daily_limit_remaining < 0:
@@ -207,10 +207,12 @@ class HostBot():
     def invite_invitees(self, invitees):
         """actually send wikipedia messages to invitees"""
         for invitee in invitees:
-            invite_status = send_invite_text(invitee, mwapi_session=self.get_mwpai_session(), test=self.test)
+            if not self.test:
+                invite_status = send_invite_text(invitee, mwapi_session=self.get_mwpai_session(), test=self.test)
+            elif self.test:
+                invite_status = 'test-invited'
+                log.info(f"Pretending to invite user: invitee: {invitee.user_name}")
             self.change_invite_status_of_candidates([invitee], invite_status)
-
-
 
     def handle_overflowees(self, overflowees):
         """choose what to do with candidates who otherwise would have been invited if not for limit"""
@@ -227,15 +229,20 @@ class HostBot():
             self.internalsession.add(cand)
         self.internalsession.commit()
 
-
     def run(self):
-        self.update_candidates()
-        self.predict_new_candidates()
-        self.decide_invitees()
+        stage_fns = (self.update_candidates,
+                    self.predict_new_candidates,
+                     self.decide_invitees)
+        for stage_fn in stage_fns:
+            fn_name = stage_fn.__name__
+            try:
+                log.info(f'STARTING stage {fn_name}')
+                stage_fn()
+                log.info(f'STOPPING stage {fn_name}')
+            except Exception as e:
+                log.error(e)
 
 
 if __name__ == "__main__":
     hb = HostBot(test=True)
-    # hb.update_candidates()
-    # hb.predict_new_candidates()
-    hb.decide_invitees()
+    hb.run()
