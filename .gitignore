@@ -16,3 +16,5 @@ ipython/make edit text\.ipynb
 alembic/versions/__pycache__/
 
 hostbotai/tests/__pycache__/
+
+hostbot_Ai\.egg-info/
