@@ -8,6 +8,7 @@ logs/
 hostbotai/__pycache__/
 
 config/default_config\.json
+config/internalbot\.my\.cnf
 
 ipython/\.ipynb_checkpoints/
 
