@@ -26,7 +26,8 @@ def load_con_from_config(config_fname):
 
     db_params = {'user': cnf.get('client', 'user').replace("'", ""),
                  'pwd': cnf.get('client', 'password').replace("'", ""),
-                 'host': 'localhost',  # yes you have to be on wikitech tool-labs or ssh-tunneled
+                 'host': cnf.get('client', 'host', fallback='localhost').replace("'", ""),
+                 # yes you have to be on wikitech tool-labs or ssh-tunneled
                  'catalog': cnf.get('client', 'catalog', fallback='enwiki_p').replace("'", ""),
                  'port': cnf.get('client', 'port', fallback='3306'),
                  'pymysql': cnf.get('client', 'pymysql', fallback='+pymysql').replace("'", ""),
@@ -56,9 +57,12 @@ def wmftimestamp(datestr):
 
 def get_candidate_users(con, min_dt, test=False):
     min_time = min_dt.strftime(wmfdate_fmt)
+    # notice the user_id constant below. its a shortcut
+    # see https://github.com/notconfusing/hostbot-ai/issues/1 for a longer term solution.
     new_user_query = f'''select user_id, user_name, user_registration, user_editcount 
                         from user where user_registration > {min_time} 
-                        and user_editcount >= 3'''
+                        and user_editcount >= 3
+                        and user_id > 35000000;'''
     # if test:
     #     new_user_query += ' limit 10'
     print(new_user_query)
@@ -77,6 +81,7 @@ def load_bot_config(fname=None):
     with open(config_file, 'r') as tf:
         config = json.load(tf)
         return config
+
 
 def load_threshholds(fname=None):
     bot_config = load_bot_config(fname)
@@ -109,7 +114,7 @@ def send_invite_text(invitee, mwapi_session, test):
         lasttouched = page_data['touched']
         # get the latest revision text
         curr_page_revisions = mwapi_session.get(action='query', prop='revisions', rvprop='content', titles=page_title,
-                                          rvslots='*')
+                                                rvslots='*')
         page_doc = curr_page_revisions['query']['pages']
         [(page_id, page_doc_data)] = page_doc.items()
         page_wikitext = page_doc_data['revisions'][0]['slots']['main']['*']
