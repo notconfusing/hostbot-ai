@@ -1,12 +1,13 @@
 from sqlalchemy import or_, and_
 
 from hostbotai.utils import load_con_from_config, load_session_from_con, send_invite_text, load_mw_credentials
-from hostbotai.utils import get_candidate_users, load_threshholds
+from hostbotai.utils import get_candidate_users, load_threshholds, load_oauth_credentials
 from hostbotai.orm_models import candidates, predictions
 from datetime import datetime as dt
 from datetime import timedelta as td
 from newcomerquality.scorer import score_newcomer_first_days, registrationDateError, usercontribError, makeFeaturesError
 import mwapi
+from requests_oauthlib import OAuth1
 
 import pandas as pd
 import logging
@@ -43,11 +44,21 @@ class HostBot():
         else:
             self.mwapi_session = mwapi.Session("https://en.wikipedia.org",
                                                user_agent="HostBot-AI <max@notconfusing.com>")
+
             mw_username, mw_password = load_mw_credentials(fname=None)
             login_ret = self.mwapi_session.login(mw_username, mw_password)
             assert login_ret['status'] == 'PASS'
             # embed()
             return self.mwapi_session
+
+    def get_oauth_obj(self):
+        """Note: This is just a single-consumer OAuth, we don't edit on behalf of anyone."""
+        if hasattr(self, 'auth'):
+            return self.auth
+        else:
+            oauth_credentials = load_oauth_credentials(fname=None)
+            self.auth = OAuth1(**oauth_credentials)
+            return self.auth
 
     def add_update_candidate_users(self, knowns, candidates_df):
         candidates_inserts = []
@@ -171,11 +182,12 @@ class HostBot():
 
         today = self.start_now.date()
         beginning_of_today = today
+        # TODO maybe invites_sent_today should not include overflow just to not be confusing
         invites_sent_today = self.internalsession.query(candidates). \
             filter(candidates.created_at > today). \
             filter(candidates.invite_sent.in_(['invited', 'test-invited','overflow'])).count()
 
-        log.info(f'DRL: invites sent today {invites_sent_today}, today is: {today}')
+        log.info(f'DRL: invites & overflows sent today {invites_sent_today}, today to bot is: {today}')
         daily_limit_remaining = self.daily_limit - invites_sent_today
 
         if daily_limit_remaining < 0:
@@ -207,11 +219,9 @@ class HostBot():
     def invite_invitees(self, invitees):
         """actually send wikipedia messages to invitees"""
         for invitee in invitees:
-            if not self.test:
-                invite_status = send_invite_text(invitee, mwapi_session=self.get_mwpai_session(), test=self.test)
-            elif self.test:
-                invite_status = 'test-invited'
-                log.info(f"Pretending to invite user: invitee: {invitee.user_name}")
+            invite_status = send_invite_text(invitee, mwapi_session=self.get_mwpai_session(),
+                                             auth=self.get_oauth_obj(),
+                                             test=self.test)
             self.change_invite_status_of_candidates([invitee], invite_status)
 
     def handle_overflowees(self, overflowees):

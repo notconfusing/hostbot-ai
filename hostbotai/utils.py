@@ -1,6 +1,7 @@
 import configparser
 import os
 import json
+import random
 
 import pandas as pd
 from datetime import datetime as dt
@@ -62,7 +63,8 @@ def get_candidate_users(con, min_dt, test=False):
     new_user_query = f'''select user_id, user_name, user_registration, user_editcount 
                         from user where user_registration > {min_time} 
                         and user_editcount >= 3
-                        and user_id > 35000000;'''
+                        and user_id > 35000000
+                        and user_id %% 2 = 0;'''
     # if test:
     #     new_user_query += ' limit 10'
     print(new_user_query)
@@ -93,14 +95,27 @@ def load_mw_credentials(fname=None):
     return bot_config['wm_username'], bot_config['wm_password']
 
 
-def send_invite_text(invitee, mwapi_session, test):
+def load_oauth_credentials(fname=None):
+    bot_config = load_bot_config(fname)
+    return {'client_key': bot_config['client_key'],
+            'client_secret': bot_config['client_secret'],
+            'resource_owner_key': bot_config['resource_owner_key'],
+            'resource_owner_secret': bot_config['resource_owner_secret'], }
+
+
+def load_inviters(fname=None):
+    bot_config = load_bot_config(fname)
+    return bot_config['inviters']
+
+
+def send_invite_text(invitee, mwapi_session, auth, test):
     # make the page name
     page_title = f'User_talk:{invitee.user_name.replace(" ","_")}'
     if test:
         page_title = f'User_talk:Maximilianklein/draft/{invitee.user_name.replace(" ","_")}'
 
     # get the curr page info and edittoken
-    curr_page_info = mwapi_session.get(action='query', prop='info', meta='tokens', titles=page_title)
+    curr_page_info = mwapi_session.get(action='query', prop='info', meta='tokens', titles=page_title, auth=auth)
     # edit token
     csrftoken = curr_page_info['query']['tokens']['csrftoken']
     # lastrevid
@@ -114,24 +129,36 @@ def send_invite_text(invitee, mwapi_session, test):
         lasttouched = page_data['touched']
         # get the latest revision text
         curr_page_revisions = mwapi_session.get(action='query', prop='revisions', rvprop='content', titles=page_title,
-                                                rvslots='*')
+                                                rvslots='*', auth=auth)
         page_doc = curr_page_revisions['query']['pages']
         [(page_id, page_doc_data)] = page_doc.items()
         page_wikitext = page_doc_data['revisions'][0]['slots']['main']['*']
         page_wikitext_lower = page_wikitext.lower()
         # print(page_wikitext_lower)
         # check if teahouse is mentioned in revision text
-        teahouse_in = 'teahouse' in page_wikitext_lower
-        tea_house_in = 'tea house' in page_wikitext_lower
-        # if yes log and return already invited return 'already invited'
-        if teahouse_in or tea_house_in:
-            return 'already-invited'
+        skip_templates = ['uw-vandalism4', 'final warning', '{{sock|', 'uw-unsourced4', 'uw-socksuspect',
+                          'Socksuspectnotice', 'only warning', 'without further warning', 'Uw-socksuspect',
+                          'sockpuppetry', 'Teahouse', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4',
+                          '{{bots|deny=HostBot', '{{Bots|deny=HostBot', '{{nobots', '{{Nobots',
+                          'tea house'],
+        for skip_template in skip_templates:
+            if skip_template in page_wikitext_lower:
+                return 'already-invited'
+
         # if not post text, confirm success, return 'invited'
 
     # if we get to this point its because the page is uncreated or teahouse isn't mentioned in there
-    post_text = f"{{{{subst:Wikipedia:Teahouse/HostBot_Invitation|personal=The Teahouse is a friendly space where new " \
-                f"editors can ask questions about contributing to Wikipedia and get help from experienced editors. " \
-                f"|bot={{{{noping|HostBot}}}}|timestamp=~~~~~}}}} "
+    try:
+        inviters = load_inviters()
+        inviter = random.choice(inviters)
+        post_text = "{{{{subst:Wikipedia:Teahouse/HostBot_Invitation|personal=The Teahouse is a friendly space " \
+                    "where new editors can ask questions about contributing to Wikipedia and get help from " \
+                    "experienced editors like {{{{noping|{inviter:s}}}}} ([[User_talk:{inviter:s}|talk]]). |bot=" \
+                    "{{{{noping|HostBot}}}}|timestamp=~~~~~}}}} ".format(inviter=inviter)
+    except KeyError:  # coundn't find inviters
+        post_text = f"{{{{subst:Wikipedia:Teahouse/HostBot_Invitation|personal=The Teahouse is a friendly space where new " \
+                    f"editors can ask questions about contributing to Wikipedia and get help from experienced editors. " \
+                    f"|bot={{{{noping|HostBot}}}}|timestamp=~~~~~}}}} "
     log.info(f"About to invite on {page_title} host:{mwapi_session.host}")
-    mwapi_session.post(action='edit', title=page_title, section='new', text=post_text, token=csrftoken, )
+    mwapi_session.post(action='edit', title=page_title, section='new', text=post_text, token=csrftoken, auth=auth)
     return 'invited'
