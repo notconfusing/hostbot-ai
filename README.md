@@ -9,3 +9,6 @@ And copy the `replica.my.cnf` file you find in your tools-labs home folder to `c
 
 
 Note. storing things in the database requires: print candidate.user_name.decode('unicode_escape')
+
+MySQL Application Data Access
+==================
