@@ -140,7 +140,7 @@ def send_invite_text(invitee, mwapi_session, auth, test):
                           'Socksuspectnotice', 'only warning', 'without further warning', 'Uw-socksuspect',
                           'sockpuppetry', 'Teahouse', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4',
                           '{{bots|deny=HostBot', '{{Bots|deny=HostBot', '{{nobots', '{{Nobots',
-                          'tea house'],
+                          'tea house']
         for skip_template in skip_templates:
             if skip_template in page_wikitext_lower:
                 return 'already-invited'

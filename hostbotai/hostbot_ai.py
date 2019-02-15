@@ -251,8 +251,8 @@ class HostBot():
                 log.info(f'STOPPING stage {fn_name}')
             except Exception as e:
                 log.error(e)
-
+                raise e
 
 if __name__ == "__main__":
-    hb = HostBot(test=True)
+    hb = HostBot(test=False)
     hb.run()
