@@ -193,9 +193,10 @@ class HostBot():
         if daily_limit_remaining < 0:
             log.error('Daily limit exceeded!')
             daily_limit_remaining = 0
-
+        invite_status_to_check = ['not-invited']
+        invite_status_to_check.append(None)
         invite_candidates = self.internalsession.query(candidates). \
-            filter(and_(candidates.invite_sent.in_([None, 'not-invited']),    # considers re-predicted users (TODO: just repredicted users)
+            filter(and_( or_(candidates.invite_sent == 'not-invited', candidates.invite_sent == None),    # considers re-predicted users (TODO: just repredicted users)
                         candidates.candidate_status == 'predicted',
                         candidates.created_at > today)).all()  # UNSENT AND PREDICTED USERS)
 
