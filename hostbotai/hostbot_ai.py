@@ -195,8 +195,9 @@ class HostBot():
             daily_limit_remaining = 0
 
         invite_candidates = self.internalsession.query(candidates). \
-            filter(and_(candidates.invite_sent.in_(None, 'not-invited'),    # considers re-predicted users (TODO: just repredicted users)
-                        candidates.candidate_status == 'predicted')).all()  # UNSENT AND PREDICTED USERS)
+            filter(and_(candidates.invite_sent.in_([None, 'not-invited']),    # considers re-predicted users (TODO: just repredicted users)
+                        candidates.candidate_status == 'predicted',
+                        candidates.created_at > today)).all()  # UNSENT AND PREDICTED USERS)
 
         log.info(f'Found {len(invite_candidates)} invite candidates')
         # embed()
