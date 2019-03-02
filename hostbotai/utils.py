@@ -140,7 +140,9 @@ def send_invite_text(invitee, mwapi_session, auth, test):
                           'Socksuspectnotice', 'only warning', 'without further warning', 'Uw-socksuspect',
                           'sockpuppetry', 'Teahouse', 'uw-cluebotwarning4', 'uw-vblock', 'uw-speedy4',
                           '{{bots|deny=HostBot', '{{Bots|deny=HostBot', '{{nobots', '{{Nobots',
-                          'tea house', 'teahouse', """You have been '''[[WP:Blocking policy|blocked]]'''"""]
+                          'tea house', 'teahouse', """You have been '''[[WP:Blocking policy|blocked]]'''""",
+                          '{{unblock', """[[Wikipedia:Blocking policy|blocked]]""",
+                          'blocking policy']
         skip_templates = [s.lower() for s in skip_templates]
         for skip_template in skip_templates:
             # log.debug(f"Skip template is: {skip_template}. Wikitext on page: {page_wikitext_lower}")
