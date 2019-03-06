@@ -144,9 +144,9 @@ def send_email(fromaddr, toaddrs, subject, html):
 
 def generate_candidate_stats(today=datetime.datetime.utcnow(), days=7, html=True, label="Hostbot"):
     query_str = """select
-                coalesce(invite_sent,'none-yet'), YEAR(created_at), MONTH(created_at), DAY(created_at),count(invite_sent) 
-                from (select * from candidates where  :to_date <= created_at <= :from_date) day_cands
-                group by YEAR(created_at), MONTH(created_at), DAY(created_at), coalesce(invite_sent,'none-yet');"""
+                coalesce(invite_sent,'no-decision-yet'), YEAR(created_at), MONTH(created_at), DAY(created_at),count(invite_sent) 
+                from (select * from candidates where :to_date <= created_at <= :from_date) day_cands
+                group by YEAR(created_at), MONTH(created_at), DAY(created_at), coalesce(invite_sent,'no-decision-yet');"""
     result = run_query_for_days(query_str, today, days=days)
     if not html:
         return result
