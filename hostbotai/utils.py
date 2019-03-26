@@ -151,6 +151,17 @@ def send_invite_text(invitee, mwapi_session, auth, test):
 
         # if not post text, confirm success, return 'invited'
 
+    # Try to see if the user is blocked via api seperately.
+    block_status = mwapi_session.get(action='query', list='users', ususers=invitee.user_name, usprop='blockinfo')
+    log.info(f"{invitee.user_name} has block status {block_status}")
+    try:
+        blockid = block_status['query']['users'][0]['blockid']
+        if blockid:
+            log.info(f"User {invitee.user_name} was blocked but had no block templates")
+            return 'already-invited-or-blocked'
+    except KeyError: #
+        pass #if there wasn't a blockid in the response this user is not blocked at the moment
+        log.info(f"User {invitee.user_name} does not appear have to have blocked status.")
     # if we get to this point its because the page is uncreated or teahouse isn't mentioned in there
     try:
         inviters = load_inviters()

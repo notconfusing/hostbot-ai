@@ -47,5 +47,11 @@ def test_skip_banned_tmboc_templ(invitee, mwapi_session, auth):
     return skipped_user_test('VEMBERDOM', invitee, mwapi_session, auth)
 
 
+def test_skip_banned_live_api(invitee, mwapi_session, auth):
+    return skipped_user_test('Komadoe', invitee, mwapi_session, auth)
+
+def test_skip_banned_live_api_with_no_page(invitee, mwapi_session, auth):
+    return skipped_user_test('Patrice Starr', invitee, mwapi_session, auth)
+
 def test_skip_already_invited(invitee, mwapi_session, auth):
     return skipped_user_test('Premapandiri', invitee, mwapi_session, auth)
