@@ -120,8 +120,11 @@ def send_invite_text(invitee, mwapi_session, auth, test):
     csrftoken = curr_page_info['query']['tokens']['csrftoken']
     # lastrevid
     pages = curr_page_info['query']['pages']
-    [(page_id, page_data)] = pages.items()
-    uncreated_page = page_id == '-1'
+    try:
+        [(page_id, page_data)] = pages.items()
+        uncreated_page = page_id == '-1'
+    except ValueError: #sometimes the page cannot be goten at all
+        uncreated_page = True
     if not uncreated_page:
         # go try and do these things
         lastrevid = page_data['lastrevid']

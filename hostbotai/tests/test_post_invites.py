@@ -1,3 +1,6 @@
+from unittest.mock import patch
+
+import mwapi
 import pytest
 from requests_oauthlib import OAuth1
 
@@ -55,3 +58,10 @@ def test_skip_banned_live_api_with_no_page(invitee, mwapi_session, auth):
 
 def test_skip_already_invited(invitee, mwapi_session, auth):
     return skipped_user_test('Premapandiri', invitee, mwapi_session, auth)
+
+@patch('mwapi.Session.post')
+def test_blacklist_error(mock_mwapi_session, invitee, mwapi_session, auth):
+    mock_mwapi_session.side_effect = mwapi.errors.APIError('blacklisted', 'for sockpuppetry', 'a')
+    invitee.user_name = "Harshuboy0"
+    result = send_invite_text(invitee, mock_mwapi_session, auth, test=True)
+    assert result == 'already-invited-or-blocked'
